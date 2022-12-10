@@ -1,8 +1,7 @@
 [![Java CI with Maven](https://github.com/martinabsmeier/common-sm/actions/workflows/maven.yml/badge.svg)](https://github.com/martinabsmeier/common-sm/actions/workflows/maven.yml)
 [![CodeQL](https://github.com/martinabsmeier/common-sm/actions/workflows/codeql.yml/badge.svg)](https://github.com/martinabsmeier/common-sm/actions/workflows/codeql.yml)
 [![Coverage](https://github.com/martinabsmeier/common-sm/actions/workflows/coverage.yml/badge.svg)](https://github.com/martinabsmeier/common-sm/actions/workflows/coverage.yml)<br />
-[![Maven Package](https://github.com/martinabsmeier/common-sm/actions/workflows/maven-publish.yml/badge.svg?branch=master)](https://github.com/martinabsmeier/common-sm/actions/workflows/maven-publish.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=martinabsmeier_statemachine&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=martinabsmeier_statemachine)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=martinabsmeier_common-sm&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=martinabsmeier_common-sm)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 # Statemachine
