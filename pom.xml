@@ -47,7 +47,7 @@
         <log4j.version>2.19.0</log4j.version>
 
         <!-- Compile dependency version -->
-        <lombok.version>1.18.24</lombok.version>
+        <lombok.version>1.18.26</lombok.version>
 
         <!-- Test dependency versions -->
         <junit.version>5.9.2</junit.version>
