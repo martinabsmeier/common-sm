@@ -1,10 +1,10 @@
 [![Java CI with Maven](https://github.com/martinabsmeier/common-sm/actions/workflows/maven.yml/badge.svg)](https://github.com/martinabsmeier/common-sm/actions/workflows/maven.yml)
 [![CodeQL](https://github.com/martinabsmeier/common-sm/actions/workflows/codeql.yml/badge.svg)](https://github.com/martinabsmeier/common-sm/actions/workflows/codeql.yml)
-[![Coverage](https://github.com/martinabsmeier/common-sm/actions/workflows/coverage.yml/badge.svg)](https://github.com/martinabsmeier/common-sm/actions/workflows/coverage.yml)<br />
+[![Coverage](https://github.com/martinabsmeier/common-sm/actions/workflows/coverage.yml/badge.svg)](https://github.com/martinabsmeier/common-sm/actions/workflows/coverage.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=martinabsmeier_common-sm&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=martinabsmeier_common-sm)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
-# Statemachine
+# common-sm (Statemachine)
 * Add description
 
 ## About the Project
