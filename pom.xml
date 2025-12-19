@@ -44,7 +44,7 @@
         </sonar.coverage.jacoco.xmlReportPaths>
 
         <!-- Dependency versions -->
-        <log4j.version>2.19.0</log4j.version>
+        <log4j.version>2.25.3</log4j.version>
 
         <!-- Compile dependency version -->
         <lombok.version>1.18.26</lombok.version>
