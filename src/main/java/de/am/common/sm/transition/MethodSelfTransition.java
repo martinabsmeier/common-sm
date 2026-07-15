@@ -16,7 +16,6 @@
 package de.am.common.sm.transition;
 
 import de.am.common.sm.State;
-import de.am.common.sm.StateMachine;
 import de.am.common.sm.StateMachineFactory;
 import de.am.common.sm.context.StateContext;
 import de.am.common.sm.exception.MethodInvocationException;

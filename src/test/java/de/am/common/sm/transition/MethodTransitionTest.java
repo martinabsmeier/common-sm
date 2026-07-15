@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
 
 /**
  * JUnit test cases of {@link MethodTransition} class.
@@ -93,4 +94,18 @@ class MethodTransitionTest extends  AbstractTransitionTest{
         MethodTransition t = new MethodTransition("event", nextState, subsetAllArgsMethod2, target);
         assertTrue(t.execute(argsEvent));
     }
-}
+
+    @Test
+    void testExecuteNullableArgMethodOnNullArgumentEvent() {
+        MethodTransition t = new MethodTransition("event", nextState, nullableArgMethod, target);
+        assertTrue(t.execute(nullableArgsEvent));
+        verify(target).nullableArg(null);
+    }
+
+    @Test
+    void testExecuteNullableSubsetMethodOnNullArgumentEvent() {
+        MethodTransition t = new MethodTransition("event", nextState, nullableArgsMethod, target);
+        assertTrue(t.execute(nullableArgsEvent));
+        verify(target).nullableArgs((A) nullableArgsEvent.getArguments()[1], null, (Boolean) nullableArgsEvent.getArguments()[3]);
+    }
+} 

@@ -16,7 +16,6 @@
 package de.am.common.sm.transition;
 
 import de.am.common.sm.State;
-import de.am.common.sm.StateMachine;
 import de.am.common.sm.StateMachineFactory;
 import de.am.common.sm.annotation.Transition;
 import de.am.common.sm.context.StateContext;
@@ -179,14 +178,7 @@ public class MethodTransition extends AbstractTransition {
         if (i < args.length && match(types[i], event.getContext(), StateContext.class)) {
             args[i++] = event.getContext();
         }
-        Object[] eventArgs = event.getArguments();
-        for (int j = 0; i < args.length && j < eventArgs.length; j++) {
-            if (match(types[i], eventArgs[j], Object.class)) {
-                args[i++] = eventArgs[j];
-            }
-        }
-
-        if (args.length > i) {
+        if (!bindEventArguments(types, args, i, event.getArguments(), 0)) {
             return false;
         }
 
@@ -224,34 +216,73 @@ public class MethodTransition extends AbstractTransition {
         }
     }
 
-    private boolean match(Class<?> paramType, Object arg, Class<?> argType) {
-        if (paramType.isPrimitive()) {
-            if (paramType.equals(Boolean.TYPE)) {
-                return arg instanceof Boolean;
-            }
-            if (paramType.equals(Integer.TYPE)) {
-                return arg instanceof Integer;
-            }
-            if (paramType.equals(Long.TYPE)) {
-                return arg instanceof Long;
-            }
-            if (paramType.equals(Short.TYPE)) {
-                return arg instanceof Short;
-            }
-            if (paramType.equals(Byte.TYPE)) {
-                return arg instanceof Byte;
-            }
-            if (paramType.equals(Double.TYPE)) {
-                return arg instanceof Double;
-            }
-            if (paramType.equals(Float.TYPE)) {
-                return arg instanceof Float;
-            }
-            if (paramType.equals(Character.TYPE)) {
-                return arg instanceof Character;
+    private boolean bindEventArguments(Class<?>[] paramTypes, Object[] boundArgs, int paramIndex, Object[] eventArgs, int eventArgIndex) {
+        if (paramIndex == boundArgs.length) {
+            return true;
+        }
+        if (eventArgIndex == eventArgs.length) {
+            return false;
+        }
+
+        Object eventArg = eventArgs[eventArgIndex];
+        if (eventArg == null) {
+            if (bindEventArguments(paramTypes, boundArgs, paramIndex, eventArgs, eventArgIndex + 1)) {
+                return true;
             }
         }
+
+        if (match(paramTypes[paramIndex], eventArg, Object.class)) {
+            boundArgs[paramIndex] = eventArg;
+            if (bindEventArguments(paramTypes, boundArgs, paramIndex + 1, eventArgs, eventArgIndex + 1)) {
+                return true;
+            }
+            boundArgs[paramIndex] = null;
+        }
+
+        return bindEventArguments(paramTypes, boundArgs, paramIndex, eventArgs, eventArgIndex + 1);
+    }
+
+    private boolean match(Class<?> paramType, Object arg, Class<?> argType) {
+        if (paramType.isPrimitive()) {
+            return isMatchingPrimitive(paramType, arg);
+        }
+        if (arg == null) {
+            return !paramType.isPrimitive() && argType.isAssignableFrom(paramType);
+        }
         return argType.isAssignableFrom(paramType) && paramType.isAssignableFrom(arg.getClass());
+    }
+
+    private boolean isMatchingPrimitive(Class<?> paramType, Object arg) {
+        Class<?> wrapperType = getWrapperType(paramType);
+        return wrapperType != null && wrapperType.isInstance(arg);
+    }
+
+    private Class<?> getWrapperType(Class<?> primitiveType) {
+        if (primitiveType.equals(Boolean.TYPE)) {
+            return Boolean.class;
+        }
+        if (primitiveType.equals(Integer.TYPE)) {
+            return Integer.class;
+        }
+        if (primitiveType.equals(Long.TYPE)) {
+            return Long.class;
+        }
+        if (primitiveType.equals(Short.TYPE)) {
+            return Short.class;
+        }
+        if (primitiveType.equals(Byte.TYPE)) {
+            return Byte.class;
+        }
+        if (primitiveType.equals(Double.TYPE)) {
+            return Double.class;
+        }
+        if (primitiveType.equals(Float.TYPE)) {
+            return Float.class;
+        }
+        if (primitiveType.equals(Character.TYPE)) {
+            return Character.class;
+        }
+        return null;
     }
 
     @Override

@@ -36,8 +36,11 @@ public abstract class AbstractTransitionTest {
     protected Target target;
     protected Method subsetAllArgsMethod1;
     protected Method subsetAllArgsMethod2;
+    protected Method nullableArgMethod;
+    protected Method nullableArgsMethod;
     protected Event noArgsEvent;
     protected Event argsEvent;
+    protected Event nullableArgsEvent;
     protected Object[] args;
 
     @BeforeAll
@@ -51,10 +54,13 @@ public abstract class AbstractTransitionTest {
         target = mock(Target.class);
         subsetAllArgsMethod1 = Target.class.getMethod("subsetAllArgs", TestStateContext.class, B.class, A.class, Integer.TYPE);
         subsetAllArgsMethod2 = Target.class.getMethod("subsetAllArgs", Event.class, B.class, B.class, Boolean.TYPE);
+        nullableArgMethod = Target.class.getMethod("nullableArg", String.class);
+        nullableArgsMethod = Target.class.getMethod("nullableArgs", A.class, Object.class, Boolean.class);
         args = new Object[]{new A(), new B(), new C(), 627438, Boolean.TRUE};
         context = mock(TestStateContext.class);
         noArgsEvent = new Event("event", context, new Object[0]);
         argsEvent = new Event("event", context, args);
+        nullableArgsEvent = new Event("event", context, new Object[]{null, new A(), null, Boolean.TRUE});
     }
 
     @AfterEach
@@ -63,10 +69,13 @@ public abstract class AbstractTransitionTest {
         target = null;
         subsetAllArgsMethod1 = null;
         subsetAllArgsMethod2 = null;
+        nullableArgMethod = null;
+        nullableArgsMethod = null;
         args = null;
         context = null;
         noArgsEvent = null;
         argsEvent = null;
+        nullableArgsEvent = null;
     }
 
     interface Target {
@@ -81,6 +90,10 @@ public abstract class AbstractTransitionTest {
         void subsetAllArgs(TestStateContext ctxt, B b, A c, int integer);
 
         void subsetAllArgs(Event event, B b, B c, boolean bool);
+
+        void nullableArg(String value);
+
+        void nullableArgs(A value, Object otherValue, Boolean bool);
     }
 
     interface TestStateContext extends StateContext {

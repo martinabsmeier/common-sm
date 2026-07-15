@@ -49,6 +49,9 @@ public abstract class AbstractStateContextLookup implements StateContextLookup {
     @Override
     public StateContext lookup(Object[] eventArgs) {
         for (Object eventArg : eventArgs) {
+            if (eventArg == null) {
+                continue;
+            }
             if (supports(eventArg.getClass())) {
                 StateContext sc = lookup(eventArg);
                 if (isNull(sc)) {

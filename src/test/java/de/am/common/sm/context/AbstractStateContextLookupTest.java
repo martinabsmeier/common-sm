@@ -39,7 +39,7 @@ class AbstractStateContextLookupTest {
             }
             @Override
             protected void store(Object eventArg, StateContext context) {
-
+                // Just a test
             }
             @Override
             protected boolean supports(Class<?> c) {
@@ -76,5 +76,31 @@ class AbstractStateContextLookupTest {
         assertSame(map.get("context"), sc);
         assertSame(map.get("context"), lookup.lookup(args1));
         assertSame(map.get("context"), lookup.lookup(args2));
+    }
+
+    @Test
+    void testLookupIgnoresNullArguments() {
+        Map<String, StateContext> map = new HashMap<>();
+        AbstractStateContextLookup lookup = new AbstractStateContextLookup(new DefaultStateContextFactory()) {
+            @Override
+            protected boolean supports(Class<?> c) {
+                return Map.class.isAssignableFrom(c);
+            }
+
+            @Override
+            protected StateContext lookup(Object eventArg) {
+                Map<String, StateContext> map = (Map<String, StateContext>) eventArg;
+                return map.get("context");
+            }
+
+            @Override
+            protected void store(Object eventArg, StateContext context) {
+                Map<String, StateContext> map = (Map<String, StateContext>) eventArg;
+                map.put("context", context);
+            }
+        };
+
+        StateContext sc = lookup.lookup(new Object[]{null, map, null});
+        assertSame(map.get("context"), sc);
     }
 }
