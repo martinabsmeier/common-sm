@@ -34,8 +34,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 
         <sonar.organization>martinabsmeier</sonar.organization>
@@ -47,20 +46,20 @@
         <log4j.version>2.19.0</log4j.version>
 
         <!-- Compile dependency version -->
-        <lombok.version>1.18.26</lombok.version>
+        <lombok.version>1.18.38</lombok.version>
 
         <!-- Test dependency versions -->
         <junit.version>5.9.2</junit.version>
-        <mockito.version>5.1.1</mockito.version>
+        <mockito.version>5.14.2</mockito.version>
 
         <!-- Plugin versions-->
-        <compiler.plugin.version>3.10.1</compiler.plugin.version>
-        <surefire.plugin.version>3.0.0-M8</surefire.plugin.version>
+        <compiler.plugin.version>3.13.0</compiler.plugin.version>
+        <surefire.plugin.version>3.2.5</surefire.plugin.version>
         <jar.plugin.version>3.3.0</jar.plugin.version>
-        <javadoc.plugin.version>3.4.1</javadoc.plugin.version>
+        <javadoc.plugin.version>3.7.0</javadoc.plugin.version>
         <source.plugin.version>3.2.1</source.plugin.version>
         <resources.plugin.version>3.3.0</resources.plugin.version>
-        <jacoco.plugin.version>0.8.8</jacoco.plugin.version>
+        <jacoco.plugin.version>0.8.12</jacoco.plugin.version>
     </properties>
 
     <dependencies>
@@ -106,8 +105,7 @@
                 <version>${compiler.plugin.version}</version>
                 <configuration>
                     <showDeprecation>true</showDeprecation>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
+                    <release>${maven.compiler.release}</release>
                 </configuration>
             </plugin>
 
@@ -146,7 +144,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${javadoc.plugin.version}</version>
                 <configuration>
-                    <source>11</source>
+                    <source>${maven.compiler.release}</source>
                 </configuration>
                 <executions>
                     <execution>

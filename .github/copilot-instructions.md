@@ -2,7 +2,7 @@
 
 ## Build and test commands
 
-Use a Java 11-compatible toolchain for CI parity. JDK 17 also works locally; JDK 21 currently fails during compilation because Lombok 1.18.26 is not compatible with it in this project.
+Use JDK 21 locally and in CI.
 
 ```bash
 # Run the full test suite
