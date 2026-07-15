@@ -28,6 +28,7 @@ import lombok.extern.log4j.Log4j2;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.Objects;
 
 import static java.util.Objects.isNull;
@@ -37,9 +38,9 @@ import static java.util.Objects.isNull;
  * {@link StateMachine}.
  * <p>
  * By default the proxy uses {@link SingletonStateContextLookup}, derives the event id from the invoked method name via
- * {@link DefaultEventFactory}, and returns {@code null} after dispatching the event. This makes the builder best suited
- * for command-style interfaces whose methods communicate through state changes and side effects rather than return
- * values.
+ * {@link DefaultEventFactory}, and returns {@code null} after dispatching the event. For that reason, only
+ * command-style interfaces with {@code void} methods are supported; non-void interface methods are rejected when the
+ * proxy is created.
  * </p>
  *
  * @author Martin Absmeier
@@ -163,6 +164,8 @@ public class StateMachineProxyBuilder {
      * @return the proxy object.
      */
     public Object create(Class<?>[] ifaces, StateMachine sm) {
+        validateProxyInterfaces(ifaces);
+
         ClassLoader cl = defaultCl;
         if (isNull(cl)) {
             cl = Thread.currentThread().getContextClassLoader();
@@ -171,6 +174,18 @@ public class StateMachineProxyBuilder {
         InvocationHandler handler = new MethodInvocationHandler(
             sm, contextLookup, interceptor, eventFactory, ignoreUnhandledEvents, ignoreStateContextLookupFailure, name);
         return Proxy.newProxyInstance(cl, ifaces, handler);
+    }
+
+    private void validateProxyInterfaces(Class<?>[] ifaces) {
+        for (Class<?> iface : ifaces) {
+            Arrays.stream(iface.getMethods())
+                .filter(method -> method.getDeclaringClass() != Object.class)
+                .filter(method -> method.getReturnType() != Void.TYPE)
+                .findFirst()
+                .ifPresent(method -> {
+                    throw new IllegalArgumentException("StateMachineProxyBuilder only supports void interface methods: " + method);
+                });
+        }
     }
 
     private static class MethodInvocationHandler implements InvocationHandler {

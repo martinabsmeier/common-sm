@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -148,12 +149,26 @@ class StateMachineProxyBuilderTest {
         assertTrue(messages.isEmpty());
     }
 
+    @Test
+    void testRejectsNonVoidProxyMethods() {
+        StateMachine sm = new StateMachine(new de.am.common.sm.State[]{new de.am.common.sm.State("s1")}, "s1");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> new StateMachineProxyBuilder().create(NonVoidProxy.class, sm));
+
+        assertTrue(ex.getMessage().contains("only supports void interface methods"));
+    }
+
     public interface Reentrant {
         void call1(Reentrant proxy);
 
         void call2(Reentrant proxy);
 
         void call3(Reentrant proxy);
+    }
+
+    public interface NonVoidProxy {
+        String currentState();
     }
 
     public static class ReentrantStateMachineHandler {

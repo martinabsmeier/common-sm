@@ -14,6 +14,7 @@
 - Support hierarchical states via parent-child relationships
 - Run entry and exit hooks with `@OnEntry` and `@OnExit`
 - Dispatch interface method calls into a `StateMachine` through `StateMachineProxyBuilder`
+- Null-safe event argument handling during context lookup and transition binding
 
 ## Requirements
 
@@ -57,6 +58,8 @@ Add the library to your Maven project:
     <version>${version}</version>
 </dependency>
 ```
+
+`StateMachineProxyBuilder` is designed for command-style interfaces. Proxy methods must return `void`; non-`void` interface methods are rejected when the proxy is created.
 
 Example interface:
 
@@ -136,12 +139,10 @@ deck.eject();
 
 See `src/test/java/de/am/common/sm/example/` and `StateMachineProxyBuilderTest` for end-to-end examples.
 
-## Prioritized improvement ideas
+## Current improvement ideas
 
 | Priority | Area | Suggestion | Why it matters |
 | --- | --- | --- | --- |
-| High | Runtime robustness | Make event argument handling null-safe in `AbstractStateContextLookup` and transition argument binding. | `lookup(Object[] eventArgs)` currently calls `eventArg.getClass()` directly, so a proxy call with a `null` argument can fail before state handling starts. |
-| High | Proxy API safety | Validate or support non-`void` proxy methods in `StateMachineProxyBuilder`. | The proxy always returns `null`, which is surprising for any interface method with a return type and can break primitive-returning methods at runtime. |
 | Medium | Build metadata | Remove the remaining SonarCloud properties from `pom.xml` and fix the stale JaCoCo report path. | SonarCloud has already been removed from GitHub Actions, so the leftover Maven properties are obsolete and the current report path points to `statemachine/target/...` instead of this project. |
 | Medium | API ergonomics | Tighten method-signature matching in `MethodSelfTransition` and add focused tests for custom `StateContext` subtypes. | The current `isAssignableFrom` checks are fragile and make entry/exit hook binding harder to reason about for subtype-based contexts. |
 | Low | Documentation/examples | Promote the tape deck example to a first-class sample module or published example source. | The project is easiest to understand through the annotated example flow, but today that guidance lives only in tests and the README. |
