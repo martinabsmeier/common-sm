@@ -3,74 +3,143 @@
 [![Coverage](https://github.com/martinabsmeier/common-sm/actions/workflows/coverage.yml/badge.svg)](https://github.com/martinabsmeier/common-sm/actions/workflows/coverage.yml)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
-# common-sm (Statemachine)
-* Add description
+# common-sm
 
-## About the Project
-Here you can provide more details about the project
-* What features does your project provide?
-* Short motivation for the project? (Don't be too long winded)
-* Links to the project site
-```
-Show some example code to describe what your project does
-Show some of your APIs
-```
+`common-sm` is a small Java library for building event-driven state machines. It provides annotations for declaring states and transitions, a runtime engine for executing them, and a proxy builder that translates interface method calls into state machine events.
 
-## Getting Started
-**FIXME Add documentation**<br>
-* This section should provide instructions for other developers
-* Some examples
+## Features
 
-### Dependencies
-Describe dependencies
+- Define states with `@State`
+- Define transitions with `@Transition` and `@Transitions`
+- Support hierarchical states via parent-child relationships
+- Run entry and exit hooks with `@OnEntry` and `@OnExit`
+- Dispatch interface method calls into a `StateMachine` through `StateMachineProxyBuilder`
 
-### Getting the Source
-***Shell*** project is [hosted on GitHub](https://github.com/martinabsmeier/statemachine).
-You can clone this project directly using this command:
-```
-git clone git@github.com:martinabsmeier/statemachine.git
+## Requirements
+
+- JDK 21
+- Maven 3.9+
+
+## Getting the source
+
+```bash
+git clone git@github.com:martinabsmeier/common-sm.git
+cd common-sm
 ```
 
-### Building
-***Statemachine*** project use [maven](https://maven.apache.org) as build system.
-```
-mvn clean install
+## Build and test
+
+```bash
+# run the full test suite
+mvn clean test
+
+# build the jar
+mvn package
+
+# run one test class
+mvn -Dtest=StateMachineTest test
+
+# run one test method
+mvn -Dtest=StateMachineTest#testOnEntry test
+
+# generate coverage report
+mvn test jacoco:report
 ```
 
-### Running Tests
-Describe how to run unit tests for your project.
-```
-mvn test
-```
+## Usage
 
-### User guide
-Instructions for using your project. Ways to run the program, how to include it in another project, etc.
+Add the library to your Maven project:
 
 ```xml
 <dependency>
     <groupId>de.am.common</groupId>
-    <artifactId>statemachine</artifactId>
+    <artifactId>common-sm</artifactId>
     <version>${version}</version>
 </dependency>
 ```
-If your project provides an API, either provide details for usage in this document or link to the appropriate API reference documents
 
-## Releases
-***Statemachine*** project is not released until now.
-For a list of available releases, see the [releases list](https://github.com/martinabsmeier/statemachine/releases).
+Example interface:
 
-### Versioning
-This project uses [Semantic Versioning](http://semver.org/).
-For a list of available versions, see the [repository tag list](https://github.com/martinabsmeier/statemachine/tags).
+```java
+public interface TapeDeck {
+
+    void load(String nameOfTape);
+
+    void play();
+
+    void pause();
+
+    void stop();
+
+    void eject();
+}
+```
+
+Annotated handler:
+
+```java
+public class TapeDeckManager {
+
+    @State
+    public static final String STATE_EMPTY = "Empty";
+
+    @State
+    public static final String STATE_LOADED = "Loaded";
+
+    @State
+    public static final String STATE_PLAYING = "Playing";
+
+    @State
+    public static final String STATE_PAUSED = "Paused";
+
+    @Transition(on = "load", in = STATE_EMPTY, next = STATE_LOADED)
+    public void loadTape(String nameOfTape) {
+    }
+
+    @Transitions({
+        @Transition(on = "play", in = STATE_LOADED, next = STATE_PLAYING),
+        @Transition(on = "play", in = STATE_PAUSED, next = STATE_PLAYING)
+    })
+    public void playTape() {
+    }
+
+    @Transition(on = "pause", in = STATE_PLAYING, next = STATE_PAUSED)
+    public void pauseTape() {
+    }
+
+    @Transition(on = "stop", in = STATE_PLAYING, next = STATE_LOADED)
+    public void stopTape() {
+    }
+
+    @Transition(on = "eject", in = STATE_LOADED, next = STATE_EMPTY)
+    public void ejectTape() {
+    }
+}
+```
+
+Create and use the state machine through a proxy:
+
+```java
+TapeDeckManager manager = new TapeDeckManager();
+
+StateMachineFactory factory = StateMachineFactory.create(Transition.class);
+StateMachine sm = factory.create(TapeDeckManager.STATE_EMPTY, manager);
+TapeDeck deck = new StateMachineProxyBuilder().create(TapeDeck.class, sm);
+
+deck.load("The Knife - Silent Shout");
+deck.play();
+deck.pause();
+deck.play();
+deck.stop();
+deck.eject();
+```
+
+See `src/test/java/de/am/common/sm/example/` and `StateMachineProxyBuilderTest` for end-to-end examples.
 
 ## Contributing
-Provide details about how people can contribute to your project. If you have a contributing guide, mention it here. e.g.:
-We encourage public contributions! Please review [CONTRIBUTING](CONTRIBUTING.md) for details on our code of conduct and development process.
+
+Contributions are welcome. Please review [CONTRIBUTING.md](CONTRIBUTING.md) and make sure `mvn clean test` passes before opening a pull request.
 
 ## License
-This project is licensed under the Apache License - see [LICENSE](LICENSE) file for details.
 
-## Authors
-* **[Martin Absmeier](https://github.com/martinabsmeier)** - *Initial work*
-
-Also see the list of [contributors](https://github.com/martinabsmeier/statemachine/contributors) who participated in this project.
+This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
