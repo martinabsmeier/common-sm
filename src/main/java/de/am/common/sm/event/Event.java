@@ -33,12 +33,27 @@ import static java.util.Objects.requireNonNull;
 public class Event implements Serializable {
     private static final long serialVersionUID = -7224996357207464822L;
 
+    /**
+     * Wildcard event id used by transitions that should match any event.
+     */
     public static final String WILDCARD_EVENT_ID = "*";
-	@Getter
+
+    /**
+     * The event identifier, typically derived from a proxy method name.
+     */
+    @Getter
     private final transient Object id;
-	@Getter
+
+    /**
+     * The state context for the client that triggered the event.
+     */
+    @Getter
     private final StateContext context;
-	@Getter
+
+    /**
+     * The arguments associated with the event.
+     */
+    @Getter
     private final transient Object[] arguments;
 
     /**
@@ -59,9 +74,9 @@ public class Event implements Serializable {
      * @param arguments the event arguments.
      */
     public Event(Object id, StateContext context, Object[] arguments) {
-		requireNonNull(id, "NULL is not permitted value for 'id' parameter.");
-		requireNonNull(context, "NULL is not permitted value for 'context' parameter.");
-		requireNonNull(arguments, "NULL is not permitted value for 'arguments' parameter.");
+        requireNonNull(id, "NULL is not permitted value for 'id' parameter.");
+        requireNonNull(context, "NULL is not permitted value for 'context' parameter.");
+        requireNonNull(arguments, "NULL is not permitted value for 'arguments' parameter.");
 
         this.id = id;
         this.context = context;

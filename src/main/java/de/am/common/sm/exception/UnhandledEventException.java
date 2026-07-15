@@ -26,6 +26,9 @@ import lombok.Getter;
 public class UnhandledEventException extends RuntimeException {
     private static final long serialVersionUID = -717373229954175430L;
 
+    /**
+     * The event that could not be handled by the current state hierarchy.
+     */
     @Getter
     private final Event event;
 

@@ -35,6 +35,12 @@ public abstract class AbstractStateContext implements StateContext {
 
     private transient Map<Object, Object> attributes = new HashMap<>();
 
+    /**
+     * Creates a new state context with no current state and an empty attribute map.
+     */
+    protected AbstractStateContext() {
+    }
+
     @Override
     public Object getAttribute(Object key) {
         return getAttributes().get(key);

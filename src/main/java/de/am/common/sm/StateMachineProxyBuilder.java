@@ -59,6 +59,12 @@ public class StateMachineProxyBuilder {
     private ClassLoader defaultCl = null;
 
     /**
+     * Creates a new proxy builder with the default context lookup and event factory.
+     */
+    public StateMachineProxyBuilder() {
+    }
+
+    /**
      * Sets the name of the proxy created by this builder. This will be used by the proxies <code>toString()</code> method. If not specified
      * a default auto generated name will be used.
      *

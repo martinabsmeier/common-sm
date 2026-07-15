@@ -23,4 +23,10 @@ package de.am.common.sm.context;
 public class DefaultStateContext extends AbstractStateContext {
     private static final long serialVersionUID = 8061760934773298712L;
 
+    /**
+     * Creates a new default state context.
+     */
+    public DefaultStateContext() {
+    }
+
 }

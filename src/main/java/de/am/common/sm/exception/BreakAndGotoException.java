@@ -33,8 +33,14 @@ import static java.util.Objects.isNull;
 public class BreakAndGotoException extends RuntimeException {
     private static final long serialVersionUID = 711671882187950113L;
 
+    /**
+     * The state id that should be entered.
+     */
     @Getter
     private final String stateId;
+    /**
+     * Whether the target state should handle the current event immediately.
+     */
     @Getter
     private final boolean now;
 

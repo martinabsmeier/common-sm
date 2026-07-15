@@ -62,6 +62,14 @@ public class StateMachineFactory {
 
     private final Class<? extends Annotation> exitSelfTransitionsAnnotation;
 
+    /**
+     * Creates a new factory with the supplied annotation types.
+     *
+     * @param transitionAnnotation the annotation used for single transition declarations.
+     * @param transitionsAnnotation the annotation used for grouped transition declarations.
+     * @param entrySelfTransitionsAnnotation the annotation used for entry hooks.
+     * @param exitSelfTransitionsAnnotation the annotation used for exit hooks.
+     */
     protected StateMachineFactory(Class<? extends Annotation> transitionAnnotation,
                                   Class<? extends Annotation> transitionsAnnotation,
                                   Class<? extends Annotation> entrySelfTransitionsAnnotation,
@@ -216,6 +224,12 @@ public class StateMachineFactory {
         }
     }
 
+    /**
+     * Returns the fields of the specified class that are valid {@link de.am.common.sm.annotation.State} declarations.
+     *
+     * @param clazz the class to inspect.
+     * @return the matching state fields in declaration order.
+     */
     public static List<Field> getFields(Class<?> clazz) {
         LinkedList<Field> fields = new LinkedList<>();
 
@@ -234,6 +248,12 @@ public class StateMachineFactory {
         return fields;
     }
 
+    /**
+     * Creates runtime {@link State} instances from the supplied annotated fields.
+     *
+     * @param fields the state fields to convert.
+     * @return the created states in parent-before-child order.
+     */
     public static State[] createStates(List<Field> fields) {
         LinkedHashMap<String, State> states = new LinkedHashMap<>();
 

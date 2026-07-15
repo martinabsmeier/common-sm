@@ -37,11 +37,6 @@
         <maven.compiler.release>21</maven.compiler.release>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 
-        <sonar.organization>martinabsmeier</sonar.organization>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.coverage.jacoco.xmlReportPaths>${basedir}/statemachine/target/site/jacoco/jacoco.xml
-        </sonar.coverage.jacoco.xmlReportPaths>
-
         <!-- Dependency versions -->
         <log4j.version>2.26.1</log4j.version>
 

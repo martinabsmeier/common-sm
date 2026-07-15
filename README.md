@@ -143,7 +143,6 @@ See `src/test/java/de/am/common/sm/example/` and `StateMachineProxyBuilderTest` 
 
 | Priority | Area | Suggestion | Why it matters |
 | --- | --- | --- | --- |
-| Medium | Build metadata | Remove the remaining SonarCloud properties from `pom.xml` and fix the stale JaCoCo report path. | SonarCloud has already been removed from GitHub Actions, so the leftover Maven properties are obsolete and the current report path points to `statemachine/target/...` instead of this project. |
 | Medium | API ergonomics | Tighten method-signature matching in `MethodSelfTransition` and add focused tests for custom `StateContext` subtypes. | The current `isAssignableFrom` checks are fragile and make entry/exit hook binding harder to reason about for subtype-based contexts. |
 | Low | Documentation/examples | Promote the tape deck example to a first-class sample module or published example source. | The project is easiest to understand through the annotated example flow, but today that guidance lives only in tests and the README. |
 

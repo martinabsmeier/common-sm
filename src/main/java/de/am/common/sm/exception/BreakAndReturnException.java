@@ -31,6 +31,9 @@ import lombok.Getter;
 public class BreakAndReturnException extends RuntimeException {
     private static final long serialVersionUID = -2662100444922292796L;
 
+    /**
+     * Whether the return target should handle the current event immediately.
+     */
     @Getter
     private final boolean now;
 

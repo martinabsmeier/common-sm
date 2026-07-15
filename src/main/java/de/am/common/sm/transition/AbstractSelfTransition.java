@@ -26,6 +26,12 @@ import de.am.common.sm.context.StateContext;
 public abstract class AbstractSelfTransition implements SelfTransition {
 
     /**
+     * Creates a new self transition.
+     */
+    protected AbstractSelfTransition() {
+    }
+
+    /**
      * Executes this {@link SelfTransition}.
      * 
      * @param stateContext The context of the state.

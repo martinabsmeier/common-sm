@@ -22,6 +22,12 @@ package de.am.common.sm.context;
  */
 public class DefaultStateContextFactory implements StateContextFactory {
 
+    /**
+     * Creates a new factory for {@link DefaultStateContext} instances.
+     */
+    public DefaultStateContextFactory() {
+    }
+
     @Override
     public StateContext create() {
         return new DefaultStateContext();

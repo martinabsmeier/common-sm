@@ -30,6 +30,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface State {
 
+    /**
+     * Marker value indicating that a state has no parent state.
+     */
     String ROOT = "__root__";
 
     /**

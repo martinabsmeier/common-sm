@@ -26,6 +26,12 @@ import de.am.common.sm.context.StateContext;
  */
 public class DefaultEventFactory implements EventFactory {
 
+    /**
+     * Creates a new event factory that uses the invoked method name as the event id.
+     */
+    public DefaultEventFactory() {
+    }
+
     @Override
     public Event create(StateContext context, Method method, Object[] arguments) {
         return new Event(method.getName(), context, arguments);

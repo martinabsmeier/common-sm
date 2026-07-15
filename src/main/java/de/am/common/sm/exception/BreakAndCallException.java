@@ -33,10 +33,19 @@ import static java.util.Objects.isNull;
 public class BreakAndCallException extends RuntimeException {
     private static final long serialVersionUID = -5973306926764652458L;
 
+    /**
+     * The state id that should be entered.
+     */
     @Getter
     private final String stateId;
+    /**
+     * The optional state id to return to after the call completes.
+     */
     @Getter
     private final String returnToStateId;
+    /**
+     * Whether the target state should handle the current event immediately.
+     */
     @Getter
     private final boolean now;
 

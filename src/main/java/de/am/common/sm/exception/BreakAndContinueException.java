@@ -29,4 +29,10 @@ import de.am.common.sm.StateMachine;
  */
 public class BreakAndContinueException extends RuntimeException {
     private static final long serialVersionUID = -6166471981111377775L;
+
+    /**
+     * Creates a new control-flow exception instructing the state machine to continue with the next transition.
+     */
+    public BreakAndContinueException() {
+    }
 }

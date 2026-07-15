@@ -48,6 +48,12 @@ public class MethodSelfTransition extends AbstractSelfTransition {
     private final Object target;
     private static final Object[] EMPTY_ARGUMENTS = new Object[0];
 
+    /**
+     * Creates a new self transition that invokes the specified method on the target object.
+     *
+     * @param method the hook method to invoke.
+     * @param target the object on which the method should be invoked.
+     */
     public MethodSelfTransition(Method method, Object target) {
         this.method = method;
         this.target = target;
@@ -98,16 +104,24 @@ public class MethodSelfTransition extends AbstractSelfTransition {
         Object[] args = new Object[types.length];
 
         int i = 0;
-        if (types[i].isAssignableFrom(StateContext.class)) {
+        if (matchesParameter(types[i], stateContext)) {
             args[i++] = stateContext;
         }
-        if (i < types.length && types[i].isAssignableFrom(State.class)) {
+        if (i < types.length && matchesParameter(types[i], state)) {
             args[i++] = state;
+        }
+
+        if (i < types.length) {
+            return false;
         }
 
         invokeMethod(args);
 
         return true;
+    }
+
+    private boolean matchesParameter(Class<?> paramType, Object argument) {
+        return argument != null && paramType.isAssignableFrom(argument.getClass());
     }
 
     private void invokeMethod(Object[] arguments) {
