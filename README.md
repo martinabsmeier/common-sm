@@ -143,7 +143,10 @@ See `src/test/java/de/am/common/sm/example/` and `StateMachineProxyBuilderTest` 
 
 | Priority | Area | Suggestion | Why it matters |
 | --- | --- | --- | --- |
-| Medium | API ergonomics | Tighten method-signature matching in `MethodSelfTransition` and add focused tests for custom `StateContext` subtypes. | The current `isAssignableFrom` checks are fragile and make entry/exit hook binding harder to reason about for subtype-based contexts. |
+| High | State isolation | Revisit the default `SingletonStateContextLookup` or document its sharing semantics more explicitly. | `StateMachineProxyBuilder` uses a single shared `StateContext` by default, which can surprise consumers who expect per-client or per-aggregate state isolation. |
+| Medium | Runtime internals | Simplify `StateMachine` thread-local/event-queue management and replace legacy `Stack` usage. | The current implementation manually initializes thread locals and stores call-stack state with `Stack`, which makes the execution model harder to maintain and reason about. |
+| Medium | Observability | Fix the swapped `onEntry` / `onExit` debug messages in `StateMachine`. | Entry and exit hooks currently log the wrong action names, which makes debugging state transitions misleading. |
+| Medium | Factory internals | Refactor `StateMachineFactory` transition metadata extraction into clearer helpers with less reflective indirection. | The nested wrapper classes repeatedly use reflection for annotation parameters, which increases complexity in one of the core construction paths. |
 | Low | Documentation/examples | Promote the tape deck example to a first-class sample module or published example source. | The project is easiest to understand through the annotated example flow, but today that guidance lives only in tests and the README. |
 
 ## Contributing
