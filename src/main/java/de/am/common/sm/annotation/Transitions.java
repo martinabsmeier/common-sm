@@ -29,6 +29,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Transitions {
 
+    /**
+     * Returns the grouped transition declarations for the annotated method.
+     *
+     * @return the grouped transition annotations.
+     */
     Transition[] value();
 
 }

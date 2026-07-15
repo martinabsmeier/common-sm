@@ -16,21 +16,44 @@
 package de.am.common.sm.example;
 
 /**
- * Define the interface of an tape deck.
+ * Simple command interface used by the example state machine.
+ * <p>
+ * Each method name doubles as an event id when the interface is wrapped by {@link de.am.common.sm.StateMachineProxyBuilder}.
+ * </p>
  *
  * @author Martin Absmeier
  */
 public interface TapeDeck {
 
+    /**
+     * Removes the currently loaded tape.
+     */
     void eject();
 
+    /**
+     * Loads a tape into the deck.
+     *
+     * @param nameOfTape the human-readable tape name.
+     */
     void load(String nameOfTape);
 
+    /**
+     * Pauses playback.
+     */
     void pause();
 
+    /**
+     * Continues playback from the current position.
+     */
     void play();
 
+    /**
+     * Starts the deck.
+     */
     void start();
 
+    /**
+     * Stops playback and returns to the loaded state.
+     */
     void stop();
 }

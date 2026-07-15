@@ -32,12 +32,11 @@ import static java.util.Arrays.stream;
 import static java.util.Objects.isNull;
 
 /**
- * {@link SelfTransition} which invokes a {@link Method}. The {@link Method} can have zero or any number of StateContext
- * and State regarding order
+ * {@link SelfTransition} implementation that invokes a target {@link Method}.
  * <p>
- * Normally you wouldn't create instances of this class directly but rather use the {@link SelfTransition} annotation to
- * define the methods which should be used as transitions in your state machine and then let {@link StateMachineFactory}
- * create a {@link StateMachine} for you.
+ * The target method may declare zero parameters, a single {@link StateContext} or {@link State}, or both in that order.
+ * This is the runtime implementation used for {@link de.am.common.sm.annotation.OnEntry} and
+ * {@link de.am.common.sm.annotation.OnExit} hooks created by {@link StateMachineFactory}.
  * </p>
  *
  * @author Martin Absmeier
@@ -56,7 +55,7 @@ public class MethodSelfTransition extends AbstractSelfTransition {
     }
 
     /**
-     * Creates a new instance
+     * Creates a new instance by resolving a method with the specified name on the target object.
      *
      * @param methodName the name of the target method.
      * @param target     the target object.
@@ -76,6 +75,14 @@ public class MethodSelfTransition extends AbstractSelfTransition {
         this.method = result;
     }
 
+    /**
+     * Invokes the configured hook method if its signature can be satisfied with the current
+     * {@link StateContext} and {@link State}.
+     *
+     * @param stateContext the active state context.
+     * @param state the state whose entry or exit hook is being processed.
+     * @return {@code true} if the hook method was invoked, otherwise {@code false}.
+     */
     @Override
     public boolean doExecute(StateContext stateContext, State state) {
         Class<?>[] types = method.getParameterTypes();

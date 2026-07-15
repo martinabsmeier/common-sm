@@ -36,18 +36,15 @@ import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 
 /**
- * {@link Transition} which invokes a {@link Method}. The {@link Method} will only be invoked if its argument types actually
- * matches a subset of the {@link Event}'s argument types. The argument types are matched in order so you must make sure
- * the order of the method's arguments corresponds to the order of the event's arguments.
+ * {@link Transition} implementation that invokes a target {@link Method}.
  * <p>
- * If the first method argument type matches {@link Event} the current {@link Event} will be bound to that argument. In
- * the same manner the second argument (or first if the method isn't interested in the current {@link Event}) can have
- * the {@link StateContext} type and will in that case be bound to the current {@link StateContext}.
+ * The method is invoked only if its parameter list can be bound from the current {@link Event}. Parameter matching is
+ * positional: the method may optionally accept the current {@link Event} as its first parameter, the current
+ * {@link StateContext} as its second parameter, and then a subset of the event arguments in their original order.
  * </p>
  * <p>
- * Normally you wouldn't create instances of this class directly but rather use the {@link Transition} annotation to define
- * the methods which should be used as transitions in your state machine and then let {@link StateMachineFactory} create a
- * {@link StateMachine} for you.
+ * This class underpins the annotation-driven API exposed by {@link StateMachineFactory}, but it can also be instantiated
+ * directly when transitions need to be assembled programmatically.
  * </p>
  *
  * @author Martin Absmeier
@@ -154,6 +151,13 @@ public class MethodTransition extends AbstractTransition {
         this(eventId, null, methodName, target);
     }
 
+    /**
+     * Attempts to bind the current {@link Event} to the target method and invokes it if a complete argument list can be
+     * constructed.
+     *
+     * @param event the event currently being processed.
+     * @return {@code true} if the method was invoked, otherwise {@code false}.
+     */
     public boolean doExecute(Event event) {
         Class<?>[] types = method.getParameterTypes();
 

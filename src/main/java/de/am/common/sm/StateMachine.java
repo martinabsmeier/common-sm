@@ -37,10 +37,18 @@ import java.util.Map;
 import java.util.Stack;
 
 /**
- * Represents a complete state machine. Contains a collection of {@link State} objects connected by {@link Transition}s.
- * Normally you wouldn't create instances of this class directly but rather use the
- * {@link de.am.common.sm.annotation.State} annotation to define your states and then let {@link StateMachineFactory}
- * create a {@link StateMachine} for you.
+ * Runtime engine for a state machine composed of {@link State states}, {@link Transition transitions},
+ * and a per-invocation {@link StateContext}.
+ * <p>
+ * In typical usage, a state machine is built through {@link StateMachineFactory} from
+ * {@link de.am.common.sm.annotation.State}, {@link de.am.common.sm.annotation.Transition},
+ * {@link de.am.common.sm.annotation.OnEntry}, and {@link de.am.common.sm.annotation.OnExit} annotations,
+ * then driven through {@link StateMachineProxyBuilder}.
+ * </p>
+ * <p>
+ * The engine supports hierarchical state lookup, entry and exit hooks, re-entrant event delivery through
+ * an event queue, and call/return style control flow via {@link StateControl}.
+ * </p>
  *
  * @author Martin Absmeier
  */
@@ -106,10 +114,15 @@ public final class StateMachine {
     }
 
     /**
-     * Processes the specified {@link Event} through this {@link StateMachine}. Normally you wouldn't call this directly
-     * but rather use {@link StateMachineProxyBuilder} to create a proxy for an interface of your choice. Any method
-     * calls on the proxy will be translated into {@link Event} objects and then fed to the {@link StateMachine} by the
-     * proxy using this method.
+     * Processes the specified {@link Event} through this {@link StateMachine}.
+     * <p>
+     * This method is usually invoked indirectly by a proxy created with {@link StateMachineProxyBuilder}, but it may
+     * also be called directly when integrating the state machine into a custom event source.
+     * </p>
+     * <p>
+     * If the same thread re-enters the state machine while an event is already being processed, the nested event is
+     * queued and handled after the current transition completes.
+     * </p>
      *
      * @param event the {@link Event} to be handled.
      */

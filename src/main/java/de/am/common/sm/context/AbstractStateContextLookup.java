@@ -18,12 +18,14 @@ package de.am.common.sm.context;
 import static java.util.Objects.isNull;
 
 /**
- * Abstract {@link StateContextLookup} implementation. The {@link #lookup(Object[])} method will
- * loop through the event arguments and call the {@link #supports(Class)} method for each of them.
- * The first argument that this method returns <code>true</code> for will be passed to the abstract
- * {@link #lookup(Object)} method which should try to extract a {@link StateContext} from the
- * argument. If none is found a new {@link StateContext} will be created and stored in the event
- * argument using the {@link #store(Object, StateContext)} method.
+ * Base implementation of {@link StateContextLookup} for strategies that derive a {@link StateContext} from one of the
+ * event arguments.
+ * <p>
+ * {@link #lookup(Object[])} scans the arguments in order and asks {@link #supports(Class)} whether each argument can
+ * carry a context. For the first supported argument, {@link #lookup(Object)} is used to retrieve an existing context.
+ * If no context is present, a new one is created through the configured {@link StateContextFactory} and persisted with
+ * {@link #store(Object, StateContext)}.
+ * </p>
  *
  * @author Martin Absmeier
  */

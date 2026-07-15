@@ -23,17 +23,20 @@ import de.am.common.sm.exception.BreakAndReturnException;
 import de.am.common.sm.transition.Transition;
 
 /**
- * {@code StateControl} allows programmatic control of a state machines execution.
+ * Utility methods for altering state-machine control flow from inside a transition handler.
  * <p>
- * The <code>*Now()</code> family of methods move to a new {@link State} immediately and let the new {@link State} handle
- * the current {@link Event}. The <code>*Next()</code> family on the other hand let the new {@link State} handle the next
- * {@link Event} which is generated which make these method the programmatic equivalent of using the {@link Transition} annotation.
+ * The {@code *Now()} family moves to a new {@link State} immediately and lets that state handle the current
+ * {@link Event}. The {@code *Next()} family defers execution until the next event and is therefore the programmatic
+ * equivalent of declaring {@link de.am.common.sm.annotation.Transition#next()} on an annotation.
  * </p>
  * <p>
- * Using the <code>breakAndCall*()</code> and <code>breakAndReturn*</code> methods one can create sub state machines which
- * behave very much like sub routines. When calling a state the current state (or the specified <code>returnTo</code> state)
- * will be pushed on a stack. When returning from a state the last pushed state will be popped from the stack and used as
- * the new state.
+ * The {@code breakAndCall*()} and {@code breakAndReturn*()} methods provide subroutine-like behavior. Calling a state
+ * pushes the current state, or an explicit {@code returnTo} state, on an internal call stack. Returning pops the most
+ * recently stored state and resumes execution there.
+ * </p>
+ * <p>
+ * These methods intentionally throw internal control-flow exceptions that are interpreted by {@link StateMachine}; they
+ * are not expected to return normally.
  * </p>
  *
  * @author Martin Absmeier
@@ -133,6 +136,6 @@ public final class StateControl {
 
     // #################################################################################################################
     private StateControl() {
-        // Wo do not want an instance
+        // Utility class
     }
 }

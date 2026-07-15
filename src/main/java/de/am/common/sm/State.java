@@ -27,13 +27,15 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Represents a state in a {@link StateMachine}. Normally you wouldn't create instances of this class directly but rather
- * use the {@link de.am.common.sm.annotation.State} annotation to define your states and then let {@link StateMachineFactory}
- * create a {@link StateMachine} for you.
+ * Represents a state in a {@link StateMachine}.
  * <p>
- * {@link State}s inherits {@link Transition}s from their parent. A {@link State} can override any of the parents {@link Transition}s.
- * When an {@link Event} is processed the {@link Transition}s of the current {@link State} will be searched for a {@link Transition}
- * which can handle the event. If none is found the {@link State}'s parent will be searched and so on.
+ * A state may declare a parent state to model hierarchical behavior. When an {@link Event} is processed, the current
+ * state's transitions are evaluated first. If none of them can handle the event, the lookup continues with the parent
+ * state and so on until either a transition matches or no more parents remain.
+ * </p>
+ * <p>
+ * States can also define entry and exit {@link SelfTransition self transitions}. Most consumers define states through
+ * the {@link de.am.common.sm.annotation.State} annotation and let {@link StateMachineFactory} build the runtime model.
  * </p>
  *
  * @author Martin Absmeier
@@ -146,12 +148,12 @@ public class State {
     }
 
     /**
-     * Adds an outgoing {@link Transition} to this {@link State} with the specified weight. The higher the weight the
-     * less important a {@link Transition} is. If two {@link Transition}s match the same {@link Event} the
+     * Adds an outgoing {@link Transition} to this {@link State} with the specified weight. The higher the weight, the
+     * lower the priority of a {@link Transition}. If two {@link Transition}s match the same {@link Event}, the
      * {@link Transition} with the lower weight will be executed.
      *
      * @param transition the {@link Transition} to add.
-     * @param weight
+     * @param weight the transition priority where lower numbers are matched first.
      * @return this {@link State}.
      */
     public State addTransition(Transition transition, int weight) {

@@ -22,8 +22,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * {@code TransitionAnnotation} annotation is used to mark other annotations as being transition annotations. The annotation
- * is used to group transition annotations must be given as parameter.
+ * Meta-annotation that marks another annotation as transition-like.
+ * <p>
+ * It tells {@link de.am.common.sm.StateMachineFactory} which companion container annotation should be used when a
+ * transition annotation is repeatable through grouping.
+ * </p>
  *
  * @author Martin Absmeier
  */
@@ -32,7 +35,9 @@ import java.lang.annotation.Target;
 public @interface TransitionAnnotation {
 
     /**
-     * @return the marked annotation
+     * Returns the container annotation type that groups repeated transition annotations.
+     *
+     * @return the container annotation type.
      */
     Class<? extends Annotation> value();
 
