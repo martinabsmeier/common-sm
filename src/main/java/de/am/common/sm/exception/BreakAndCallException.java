@@ -15,9 +15,14 @@
  */
 package de.am.common.sm.exception;
 
+import de.am.common.sm.State;
 import de.am.common.sm.StateControl;
 import de.am.common.sm.StateMachine;
+import de.am.common.sm.context.StateContext;
 import lombok.Getter;
+
+import java.io.Serial;
+import java.util.Stack;
 
 import static java.util.Objects.isNull;
 
@@ -30,7 +35,8 @@ import static java.util.Objects.isNull;
  *
  * @author Martin Absmeier
  */
-public class BreakAndCallException extends RuntimeException {
+public class BreakAndCallException extends BreakAndStateChangeException {
+    @Serial
     private static final long serialVersionUID = -5973306926764652458L;
 
     /**
@@ -43,11 +49,6 @@ public class BreakAndCallException extends RuntimeException {
      */
     @Getter
     private final String returnToStateId;
-    /**
-     * Whether the target state should handle the current event immediately.
-     */
-    @Getter
-    private final boolean now;
 
     /**
      * Creates a new {@code BreakAndCallException} exception.
@@ -67,11 +68,29 @@ public class BreakAndCallException extends RuntimeException {
      * @param now             the now parameter
      */
     public BreakAndCallException(String stateId, String returnToStateId, boolean now) {
+        super(now);
         if (isNull(stateId)) {
             throw new IllegalArgumentException("stateId");
         }
         this.stateId = stateId;
         this.returnToStateId = returnToStateId;
-        this.now = now;
+    }
+
+    @Override
+    public State resolveTarget(StateMachine sm, StateContext context) {
+        return sm.getState(stateId);
+    }
+
+    @Override
+    public State applyStackEffect(StateMachine sm, StateContext context, Stack<State> callStack) {
+        State returnTo = returnToStateId != null ? sm.getState(returnToStateId) : context.getCurrentState();
+        callStack.push(returnTo);
+        // Call determines its target statically; the return-to state is pushed, not returned.
+        return null;
+    }
+
+    @Override
+    public String actionName() {
+        return "Call";
     }
 }
