@@ -15,9 +15,13 @@
  */
 package de.am.common.sm.exception;
 
+import de.am.common.sm.State;
 import de.am.common.sm.StateControl;
 import de.am.common.sm.StateMachine;
-import lombok.Getter;
+import de.am.common.sm.context.StateContext;
+
+import java.io.Serial;
+import java.util.Stack;
 
 /**
  * {@code BreakAndReturnException} is used by {@link StateControl}.
@@ -28,14 +32,9 @@ import lombok.Getter;
  *
  * @author Martin Absmeier
  */
-public class BreakAndReturnException extends RuntimeException {
+public class BreakAndReturnException extends BreakAndStateChangeException {
+    @Serial
     private static final long serialVersionUID = -2662100444922292796L;
-
-    /**
-     * Whether the return target should handle the current event immediately.
-     */
-    @Getter
-    private final boolean now;
 
     /**
      * Creates a new {@code BreakAndReturnException} exception.
@@ -43,6 +42,22 @@ public class BreakAndReturnException extends RuntimeException {
      * @param now the now parameter
      */
     public BreakAndReturnException(boolean now) {
-        this.now = now;
+        super(now);
+    }
+
+    @Override
+    public State resolveTarget(StateMachine sm, StateContext context) {
+        // The target state for Return is determined by popping the call stack in applyStackEffect.
+        return null;
+    }
+
+    @Override
+    public State applyStackEffect(StateMachine sm, StateContext context, Stack<State> callStack) {
+        return callStack.pop();
+    }
+
+    @Override
+    public String actionName() {
+        return "Return";
     }
 }

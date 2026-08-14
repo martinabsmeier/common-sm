@@ -17,10 +17,8 @@ package de.am.common.sm;
 
 import de.am.common.sm.context.StateContext;
 import de.am.common.sm.event.Event;
-import de.am.common.sm.exception.BreakAndCallException;
 import de.am.common.sm.exception.BreakAndContinueException;
-import de.am.common.sm.exception.BreakAndGotoException;
-import de.am.common.sm.exception.BreakAndReturnException;
+import de.am.common.sm.exception.BreakAndStateChangeException;
 import de.am.common.sm.exception.NoSuchStateException;
 import de.am.common.sm.exception.UnhandledEventException;
 import de.am.common.sm.transition.SelfTransition;
@@ -136,9 +134,7 @@ public final class StateMachine {
         boolean isProcessing = processingThreadLocal.get();
         if (isProcessing) {
             /* This thread is already processing an event. Queue this event. */
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("State machine called recursively. Queuing event {} for later processing.", event);
-            }
+            LOGGER.debug("State machine called recursively. Queuing event {} for later processing.", event);
         } else {
             processingThreadLocal.set(true);
             try {
@@ -164,86 +160,62 @@ public final class StateMachine {
     private void handle(State state, Event event) {
         StateContext context = event.getContext();
 
-        for (Transition t : state.getTransitions()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Trying transition {}", t);
-            }
-
+        for (Transition transition : state.getTransitions()) {
+            LOGGER.debug("Trying transition {}", transition);
             try {
-                if (t.execute(event)) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Transition {} executed successfully.", t);
-                    }
-                    setCurrentState(context, t.getNextState());
-
+                if (transition.execute(event)) {
+                    LOGGER.debug("Transition {} executed successfully.", transition);
+                    dispatchToState(context, transition.getNextState(), null, false);
                     return;
                 }
             } catch (BreakAndContinueException bace) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("BreakAndContinueException thrown in transition {}. Continuing with next transition.", t);
-                }
-            } catch (BreakAndGotoException bage) {
-                State newState = getState(bage.getStateId());
-
-                if (bage.isNow()) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("BreakAndGotoException thrown in transition {}. Moving to state {} now.", t, newState.getId());
-                    }
-                    setCurrentState(context, newState);
-                    handle(newState, event);
-                } else {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("BreakAndGotoException thrown in transition {}. Moving to state {} next.", t, newState.getId());
-                    }
-                    setCurrentState(context, newState);
-                }
-                return;
-            } catch (BreakAndCallException bace) {
-                State newState = getState(bace.getStateId());
-
+                LOGGER.debug("BreakAndContinueException thrown in transition {}. Continuing with next transition.", transition);
+            } catch (BreakAndStateChangeException basce) {
+                State newState = basce.resolveTarget(this, context);
                 Stack<State> callStack = getCallStack(context);
-                State returnTo = bace.getReturnToStateId() != null ? getState(bace.getReturnToStateId()) : context.getCurrentState();
-                callStack.push(returnTo);
-
-                if (bace.isNow()) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("BreakAndCallException thrown in transition {}. Moving to state {} noe.", t, newState.getId());
-                    }
-                    setCurrentState(context, newState);
-                    handle(newState, event);
-                } else {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("BreakAndCallException thrown in transition {}. Moving to state {} next.", t, newState.getId());
-                    }
-                    setCurrentState(context, newState);
+                State fromStack = basce.applyStackEffect(this, context, callStack);
+                if (newState == null) {
+                    newState = fromStack;
                 }
-                return;
-            } catch (BreakAndReturnException bare) {
-                Stack<State> callStack = getCallStack(context);
-                State newState = callStack.pop();
-
-                if (bare.isNow()) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("BreakAndReturnException thrown in transition {}. Moving to state {} now.", t, newState.getId());
-                    }
-                    setCurrentState(context, newState);
-                    handle(newState, event);
-                } else {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("BreakAndReturnException thrown in transition {}. Moving to state {} next", t, newState.getId());
-                    }
-                    setCurrentState(context, newState);
-                }
+                logStateChange(transition, newState, basce.isNow(), basce.actionName());
+                dispatchToState(context, newState, event, basce.isNow());
                 return;
             }
         }
 
-        /* No transition could handle the event. Try with the parent state if there is one. */
+        handleParentOrFail(state, event);
+    }
+
+    /**
+     * Moves the state machine to {@code target} and, if {@code now} is true, lets that state handle {@code event}
+     * immediately. Performs the onExit/onEntry side effects and updates {@code context.getCurrentState()}.
+     *
+     * @param context the state context of the event in flight
+     * @param target  the state to move to; may be {@code null} (in which case nothing happens)
+     * @param event   the current event; only required when {@code now} is true
+     * @param now     whether {@code target} should handle the current event immediately
+     */
+    private void dispatchToState(StateContext context, State target, Event event, boolean now) {
+        setCurrentState(context, target);
+        if (now) {
+            handle(target, event);
+        }
+    }
+
+    /**
+     * Falls back to the parent state if there is one, otherwise fails with {@link UnhandledEventException}.
+     */
+    private void handleParentOrFail(State state, Event event) {
         if (state.getParent() != null) {
             handle(state.getParent(), event);
         } else {
             throw new UnhandledEventException(event);
         }
+    }
+
+    private void logStateChange(Transition t, State newState, boolean now, String action) {
+        LOGGER.debug("BreakAnd{}Exception thrown in transition {}. Moving to state {} {}.",
+                action, t, newState.getId(), now ? "now" : "next");
     }
 
     private Stack<State> getCallStack(StateContext context) {
@@ -257,7 +229,7 @@ public final class StateMachine {
 
     private void setCurrentState(StateContext context, State newState) {
         if (newState != null) {
-            if (LOGGER.isDebugEnabled() && newState != context.getCurrentState()) {
+            if (newState != context.getCurrentState()) {
                 LOGGER.debug("Leaving state {}", context.getCurrentState().getId());
                 LOGGER.debug("Entering state {}", newState.getId());
             }
@@ -268,20 +240,18 @@ public final class StateMachine {
     }
 
     void executeOnExits(StateContext context, State state) {
-        List<SelfTransition> onExits = state.getOnExitSelfTransitions();
         boolean isExecuted = false;
 
+        List<SelfTransition> onExits = state.getOnExitSelfTransitions();
         if (onExits != null) {
             for (SelfTransition selfTransition : onExits) {
                 selfTransition.execute(context, state);
-                if (LOGGER.isDebugEnabled()) {
-                    isExecuted = true;
-                    LOGGER.debug("Executing onEntry action for {}", state.getId());
-                }
+                isExecuted = true;
+                LOGGER.debug("Executing onExit action for {}", state.getId());
             }
         }
-        if (LOGGER.isDebugEnabled() && !isExecuted) {
-            LOGGER.debug("No onEntry action for {}", state.getId());
+        if (!isExecuted) {
+            LOGGER.debug("No onExit action for {}", state.getId());
         }
     }
 
@@ -292,13 +262,11 @@ public final class StateMachine {
         if (onEntries != null) {
             for (SelfTransition selfTransition : onEntries) {
                 selfTransition.execute(context, state);
-                if (LOGGER.isDebugEnabled()) {
-                    isExecuted = true;
-                    LOGGER.debug("Executing onExit action for {}", state.getId());
-                }
+                isExecuted = true;
+                LOGGER.debug("Executing onEntry action for {}", state.getId());
             }
         }
-        if (LOGGER.isDebugEnabled() && !isExecuted) {
+        if (!isExecuted) {
             LOGGER.debug("No onEntry action for {}", state.getId());
         }
     }

@@ -15,9 +15,14 @@
  */
 package de.am.common.sm.exception;
 
+import de.am.common.sm.State;
 import de.am.common.sm.StateControl;
 import de.am.common.sm.StateMachine;
+import de.am.common.sm.context.StateContext;
 import lombok.Getter;
+
+import java.io.Serial;
+import java.util.Stack;
 
 import static java.util.Objects.isNull;
 
@@ -30,7 +35,8 @@ import static java.util.Objects.isNull;
  *
  * @author Martin Absmeier
  */
-public class BreakAndGotoException extends RuntimeException {
+public class BreakAndGotoException extends BreakAndStateChangeException {
+    @Serial
     private static final long serialVersionUID = 711671882187950113L;
 
     /**
@@ -38,11 +44,6 @@ public class BreakAndGotoException extends RuntimeException {
      */
     @Getter
     private final String stateId;
-    /**
-     * Whether the target state should handle the current event immediately.
-     */
-    @Getter
-    private final boolean now;
 
     /**
      * Creates a new {@code BreakAndGotoException} exception.
@@ -51,10 +52,26 @@ public class BreakAndGotoException extends RuntimeException {
      * @param now     the now parameter
      */
     public BreakAndGotoException(String stateId, boolean now) {
+        super(now);
         if (isNull(stateId)) {
             throw new IllegalArgumentException("stateId");
         }
         this.stateId = stateId;
-        this.now = now;
+    }
+
+    @Override
+    public State resolveTarget(StateMachine sm, StateContext context) {
+        return sm.getState(stateId);
+    }
+
+    @Override
+    public State applyStackEffect(StateMachine sm, StateContext context, Stack<State> callStack) {
+        // Goto does not manipulate the call stack and does not determine the target here.
+        return null;
+    }
+
+    @Override
+    public String actionName() {
+        return "Goto";
     }
 }
